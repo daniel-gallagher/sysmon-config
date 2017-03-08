@@ -20,7 +20,7 @@
 	Sysmon configurations only have to be a few lines, but significant effort has been invested in front-loading as
 	much filtering as possible onto the client. This is to make analysis of intrusions possible by hand, and try to
 	surface anomalous activity as quickly as possible to any technician armed only with Event Viewer.
-  
+
   NOTE: There is best-effort support for 32-bit systems, but it's not a test scenario and will require your own tuning.
 
   NOTE:	"Image" is a technical term for a compiled binary file like an EXE or DLL. Also, it can match just the filename, or entire path.
@@ -193,6 +193,10 @@
 			<CommandLine condition="contains">C:\Program Files (x86)\Webroot\WRSA.exe" -ul</CommandLine> <!--Webroot-->
 			<ParentCommandLine condition="is">"C:\Program Files (x86)\Webroot\WRSA.exe" -service</ParentCommandLine> <!--Webroot-->
 			<Image condition="is">C:\Program Files (x86)\Webroot\WRSA.exe</Image><!--Webroot-->
+			<!-- SECTION: Citrix -->
+			<Image condition="contains">\Citrix\ICA Client\</Image> <!--Citrix: Receiver client-->
+			<!-- SECTION: Symantec-->
+			<Image condition="begin with">C:\Program Files\Manufacturer\Endpoint Agent\</Image> <!--Symantec: DLP endpoint agent-->
 			<!--SECTION: Synaptics Touchpad-->
 			<Image condition="is">C:\Program Files\Synaptics\SynTP\SynTPEnh.exe</Image>
 			<Image condition="is">C:\Program Files\Synaptics\SynTP\SynTPEnhService.exe</Image>
@@ -244,6 +248,8 @@
 			<ParentImage condition="image">C:\Program Files (x86)\Dell\CommandUpdate\InvColPC.exe</ParentImage> <!--Dell:CommandUpdate: Detection process-->
 			<ParentCommandLine condition="contains">C:\Program Files (x86)\Fortinet\FortiClient\scheduler.exe</ParentCommandLine> <!--FortiClient Noise -->
 			<ParentCommandLine condition="contains">C:\Program Files (x86)\Fortinet\FortiClient\FCHelper64.exe</ParentCommandLine> <!--FortiClient Noise -->
+			<!--SECTION: Splunk-->
+			<Image condition="contains">\Splunk\bin\</Image><!-- Splunk Ops -->
 		</ProcessCreate>
 
 	<!--SYSMON EVENT ID 2 : FILE CREATION TIME RETROACTIVELY CHANGED IN THE FILESYSTEM-->
@@ -408,6 +414,10 @@
 			<SourcePort condition="is">50646</SourcePort> <!--Windows: WS-Discovery noise-->
 			<Image condition="is">C:\Program Files (x86)\SmartGit\jre\bin\java.exe</Image>
 			<Image condition="is">C:\Program Files (x86)\SyncedTool\bin\autoupdate.exe</Image>
+			<SourceIp condition="is">127.0.0.1</SourceIp> <!--Localhost: Exclude any localhost traffic-->
+			<DestinationIp condition="is">127.0.0.1</DestinationIp> <!--Localhost: Exclude any localhost traffic-->
+			<DestinationPort condition="is">123</DestinationPort> <!--NTP Port-->
+			<Image condition="contains">\Splunk\bin\</Image><!-- Splunk Ops -->
 		</NetworkConnect>
 
 	<!--SYSMON EVENT ID 4 : RESERVED FOR SYSMON STATUS MESSAGES, THIS LINE IS INCLUDED FOR DOCUMENTATION PURPOSES ONLY-->
@@ -723,7 +733,7 @@
 		<!--DATA: EventType, UtcTime, ProcessGuid, ProcessId, Image, TargetObject, Details, NewName-->
 		<!--TECHNICAL:	Possible prefixes are HKLM, HKCU, HKCR, and HKEY_USERS-->
 		<!--CRITICAL:	Schema version 3.30 and higher use HKLM and HKCU and HKCR and CurrentControlSet instead of REGISTRY\MACHINE\ and \REGISTRY\USER\ and ControlSet001-->
-		
+
 		<RegistryEvent onmatch="include">
 			<!--Autorun or Startups-->
 				<!--ADDITIONAL REFERENCE: [ http://www.ghacks.net/2016/06/04/windows-automatic-startup-locations/ ] -->
@@ -895,7 +905,7 @@
 			<TargetObject condition="begin with">HKCU\SOFTWARE\Microsoft\SystemCertificates</TargetObject>
 			<TargetObject condition="begin with">HKLM\SYSTEM\CurrentControlSet\Services\CertSvc</TargetObject>
 			-->
-			<!-- Other Stuff -->	
+			<!-- Other Stuff -->
 			<TargetObject condition="begin with">HKCU\Software\Classes\mscfile\shell\open\command</TargetObject> <!-- Fileless Bypass of UAC: http://resources.infosecinstitute.com/new-born-macro-malware-dropping-rootkits-using-fileless-infection-vector -->
 			<TargetObject condition="begin with">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree</TargetObject><!--Identify Rogue Scheduled Task ID's -->
 			<TargetObject condition="begin with">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Logon</TargetObject><!--Identify Rogue Scheduled Task ID's added to Logon -->
@@ -1165,6 +1175,8 @@
 			<Image condition="is">C:\Program Files (x86)\VMware\ScannerRedirection\ftscanmgrhv.exe</Image>
 			<Image condition="is">C:\Program Files (x86)\VMware\Infrastructure\Virtual Infrastructure Client\Launcher\VpxClient.exe</Image>
 			<Image condition="is">C:\Program Files (x86)\Common Files\VMware\VMware Remote Console Plug-in 5.5\Internet Explorer\vmware-vmrc.exe</Image>
+			<!-- SECTION: Citrix -->
+			<Image condition="contains">\Citrix\ICA Client\PNAMAIN.EXE</Image>
 		</PipeEvent>
 
 	</EventFiltering>
